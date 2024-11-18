@@ -17,7 +17,7 @@ public class HelloController {
     protected void onHelloButtonClick() {
         welcomeText.setText("Welcome to JavaFX Application!");
 
-        plansza = new Plansza(4);
+        plansza = new Plansza(5, 7);
 
         gracz.wykonajRuch(plansza);
     }

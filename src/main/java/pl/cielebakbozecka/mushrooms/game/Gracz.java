@@ -4,5 +4,6 @@ public class Gracz {
 
     public void wykonajRuch(Plansza plansza) {
 
+
     }
 }

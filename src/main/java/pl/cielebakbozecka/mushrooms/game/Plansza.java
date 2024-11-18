@@ -3,26 +3,35 @@ package pl.cielebakbozecka.mushrooms.game;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Plansza {
 
+    final static int polaNiedostępne = 0;
+    final static int polaWolne = 1;
+    final static int dobreGrzyby = 2;
+    final static int złeGrzyby = 3;
+
     public int[][] pola;
-    public int rozmiar_planszy;
+    public int wysokośćPlanszy;
+    public int szerokośćPlanszy;
 
-    public Plansza(int rozmiar_planszy) {
-        this.pola = new int[rozmiar_planszy][rozmiar_planszy];
-        this.rozmiar_planszy = rozmiar_planszy;
 
-        for (int i = 0; i < rozmiar_planszy; i++) {
-            for (int j = 0; j < rozmiar_planszy; j++) {
-                this.pola[i][j] = 0; //uzupełnienie każdego pola wartością 0
+    public Plansza(int wysokośćPlanszy, int szerokośćPlanszy) {
+        this.pola = new int[wysokośćPlanszy][szerokośćPlanszy];
+        this.wysokośćPlanszy = wysokośćPlanszy;
+        this.szerokośćPlanszy = szerokośćPlanszy;
+
+        for (int i = 0; i < wysokośćPlanszy; i++) {
+            for (int j = 0; j < szerokośćPlanszy; j++) {
+                this.pola[i][j] = polaNiedostępne; //uzupełnienie każdego pola wartością 0
             }
         }
 
-        for (int i = 0; i < rozmiar_planszy; i++) {
-            for (int j = 0; j < rozmiar_planszy; j++) {
-                if (i == 0 || i == rozmiar_planszy - 1 || j == 0 || j == rozmiar_planszy - 1) {
-                    this.pola[i][j] = 1; //pola na których można stawać przyjmują wartość 1
+        for (int i = 0; i < wysokośćPlanszy; i++) {
+            for (int j = 0; j < szerokośćPlanszy; j++) {
+                if (i == 0 || i == wysokośćPlanszy - 1 || j == 0 || j == szerokośćPlanszy - 1) {
+                    this.pola[i][j] = polaWolne; //pola na których można stawać przyjmują wartość 1
                 }
             }
         }
@@ -33,15 +42,17 @@ public class Plansza {
         int licznikd = ilość_dobrych;
         int licznikz = ilość_złych;
 
-        Random generator = new Random();
+        //Random generator = new Random();
 
         do {
-            int x = generator.nextInt(rozmiar_planszy);
-            int y = generator.nextInt(rozmiar_planszy);
+            int y = ThreadLocalRandom.current().nextInt(0, wysokośćPlanszy);
+            int x = ThreadLocalRandom.current().nextInt(0, szerokośćPlanszy);
+            //int x = generator.nextInt(wysokośćPlanszy);
+            //int y = generator.nextInt(szerokośćPlanszy);
 
-            if (this.pola[x][y] == 1) // pole używane w grze
+            if (this.pola[y][x] == polaWolne) // pole używane w grze
             {
-                this.pola[x][y] = 2; //stawiamy dobrego grzybka
+                this.pola[y][x] = dobreGrzyby; //stawiamy dobrego grzybka
                 licznikd = licznikd - 1; //zmniejszamy ilość grzybków do postawienia
             }
         }
@@ -49,11 +60,11 @@ public class Plansza {
 
         do //analogicznie do poprzedniej pętli ale dla złych grzybków
         {
-            int x = generator.nextInt(rozmiar_planszy);
-            int y = generator.nextInt(rozmiar_planszy);
+            int y = ThreadLocalRandom.current().nextInt(0, wysokośćPlanszy);
+            int x = ThreadLocalRandom.current().nextInt(0, szerokośćPlanszy);
 
-            if (this.pola[x][y] == 1) {
-                this.pola[x][y] = 3; //stawiamy złego grzybka
+            if (this.pola[y][x] == polaWolne) {
+                this.pola[y][x] = złeGrzyby; //stawiamy złego grzybka
                 licznikz = licznikz - 1;
             }
         }
@@ -71,13 +82,50 @@ public class Plansza {
         try (FileWriter filewriter = new FileWriter("pliczek.txt", true)) {
             filewriter.write("Stan gry: \n");
 
-            for (int i = 0; i < this.rozmiar_planszy; i++) {
-                for (int j = 0; j < this.rozmiar_planszy; j++) {
-                    filewriter.write(Integer.toString(this.pola[i][j]));
-                    filewriter.write(" ");
+            for (int i = 0; i < this.wysokośćPlanszy; i++) {
+                for (int j = 0; j < this.szerokośćPlanszy; j++) {
+                    if (pola[i][j] == polaNiedostępne) {
+                        //filewriter.write(Integer.toString(this.pola[i][j]));
+                        filewriter.write("  ");
+                    }
+                    if (pola[i][j]== polaWolne) {
+                        filewriter.write("# ");
+                        //System.out.print("# ");
+                    }
+                    if (pola[i][j]==dobreGrzyby) {
+                        filewriter.write("d ");
+                        //System.out.print("d ");
+                    }
+                    if (pola[i][j]==złeGrzyby) {
+                        filewriter.write("z ");
+                        //System.out.print("z ");
+                    }
+
+                    //filewriter.write(Integer.toString(this.pola[i][j]));
+                    //filewriter.write(" ");
                 }
                 filewriter.write("\n");
             }
+        }
+    }
+
+    public void wyświetlBazęPlanszy(){
+        for (int i = 0; i < wysokośćPlanszy; i++) {
+            for (int j = 0; j <szerokośćPlanszy; j++) {
+                if (pola[i][j] == polaNiedostępne) {
+                    System.out.print("  ");
+                }
+                if (pola[i][j]== polaWolne) {
+                    System.out.print("# ");
+                }
+                if (pola[i][j]==dobreGrzyby) {
+                    System.out.print("d ");
+                }
+                if (pola[i][j]==złeGrzyby) {
+                    System.out.print("z ");
+                }
+            }
+            System.out.print("\n");
         }
     }
 
