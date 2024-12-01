@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import pl.cielebakbozecka.mushrooms.game.Gracz;
 import pl.cielebakbozecka.mushrooms.game.Plansza;
 
 import java.io.IOException;
@@ -24,12 +25,11 @@ public class MushroomsApplication extends Application {
     public static void main(String[] args) throws IOException {
 
         Plansza plansza = new Plansza(5, 7);
-        plansza.wypełnijGrzybkami(3, 2);
+        Gracz gracz = new Gracz(0,0,plansza);
+        plansza.wypełnijGrzybkami();
         plansza.zapiszStanPlanszy();
         plansza.wyświetlBazęPlanszy();
-
-
-
+        gracz.wykonajRuch(plansza);
 
         launch();
     }

@@ -9,8 +9,12 @@ public class Plansza {
 
     final static int polaNiedostępne = 0;
     final static int polaWolne = 1;
-    final static int dobreGrzyby = 2;
-    final static int złeGrzyby = 3;
+    static int dobreGrzyby = 2;
+    static int złeGrzyby = 3;
+    static int Pionek = 4;
+
+    int ilośćDobrych = 3;
+    int ilośćZłych = 2;
 
     public int[][] pola;
     public int wysokośćPlanszy;
@@ -21,6 +25,11 @@ public class Plansza {
         this.pola = new int[wysokośćPlanszy][szerokośćPlanszy];
         this.wysokośćPlanszy = wysokośćPlanszy;
         this.szerokośćPlanszy = szerokośćPlanszy;
+
+        if((2*wysokośćPlanszy)+(2*szerokośćPlanszy)<=6){
+            System.out.println("Nie no ta plansza jest za mała, bez przesady");
+        }
+
 
         for (int i = 0; i < wysokośćPlanszy; i++) {
             for (int j = 0; j < szerokośćPlanszy; j++) {
@@ -38,9 +47,9 @@ public class Plansza {
 
     }
 
-    public void wypełnijGrzybkami(int ilość_dobrych, int ilość_złych) {
-        int licznikd = ilość_dobrych;
-        int licznikz = ilość_złych;
+    public void wypełnijGrzybkami() {
+        int licznikd = this.ilośćDobrych;
+        int licznikz = this.ilośćZłych;
 
         //Random generator = new Random();
 
@@ -69,6 +78,7 @@ public class Plansza {
             }
         }
         while (licznikz > 0);
+
     }
 
 // znaczenia pól:
@@ -101,6 +111,11 @@ public class Plansza {
                         //System.out.print("z ");
                     }
 
+                    if (pola[i][j]==Pionek) {
+                        filewriter.write("& ");
+                        //System.out.print("z ");
+                    }
+
                     //filewriter.write(Integer.toString(this.pola[i][j]));
                     //filewriter.write(" ");
                 }
@@ -124,6 +139,10 @@ public class Plansza {
                 if (pola[i][j]==złeGrzyby) {
                     System.out.print("z ");
                 }
+                if (pola[i][j]==Pionek) {
+                    System.out.print("& ");
+                }
+
             }
             System.out.print("\n");
         }
