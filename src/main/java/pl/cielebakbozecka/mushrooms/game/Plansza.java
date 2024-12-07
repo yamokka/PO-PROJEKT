@@ -26,7 +26,7 @@ public class Plansza {
         this.wysokośćPlanszy = wysokośćPlanszy;
         this.szerokośćPlanszy = szerokośćPlanszy;
 
-        if((2*wysokośćPlanszy)+(2*szerokośćPlanszy)<=6){
+        if(wysokośćPlanszy+szerokośćPlanszy<=12){
             System.out.println("Nie no ta plansza jest za mała, bez przesady");
         }
 
