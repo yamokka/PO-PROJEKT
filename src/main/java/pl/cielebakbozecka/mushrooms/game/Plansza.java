@@ -1,5 +1,11 @@
 package pl.cielebakbozecka.mushrooms.game;
 
+import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
+import javafx.scene.shape.Rectangle;
+import pl.cielebakbozecka.mushrooms.MushroomsApplication;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Random;
@@ -16,19 +22,72 @@ public class Plansza {
     int ilośćDobrych = 3;
     int ilośćZłych = 2;
 
+    public Rectangle tablicagrzybow[][];
+
     public int[][] pola;
     public int wysokośćPlanszy;
     public int szerokośćPlanszy;
 
+    private Image tloTekstura;
+    private ImagePattern tloTeksturaPattern;
+    private Image sciezka;
+    private ImagePattern sciezkaPattern;
+    private Rectangle tlo;
+    public Rectangle mapa[][];
+    public int szerokoscPola = 50;
+    public int wysokoscPola = 50;
+
+    public int offsetX = 130;
+    public int offsetY = 20;
 
     public Plansza(int wysokośćPlanszy, int szerokośćPlanszy) {
         this.pola = new int[wysokośćPlanszy][szerokośćPlanszy];
         this.wysokośćPlanszy = wysokośćPlanszy;
         this.szerokośćPlanszy = szerokośćPlanszy;
+        this.mapa = new Rectangle[wysokośćPlanszy][szerokośćPlanszy];
+        this.tablicagrzybow = new Rectangle[wysokośćPlanszy][szerokośćPlanszy];
+        for(int g=0; g<wysokośćPlanszy; g++){
+            for(int r=0; r<szerokośćPlanszy; r++){
+                this.tablicagrzybow[g][r]=null;
+            }
+        }
 
         if(wysokośćPlanszy+szerokośćPlanszy<=12){
             System.out.println("Nie no ta plansza jest za mała, bez przesady");
         }
+
+        tlo = new Rectangle();
+        tlo.setX(0);
+        tlo.setY(0);
+        tlo.setWidth(2000/3);
+        tlo.setHeight(1500/3);
+        tloTekstura = new Image("file:tlo.png");
+        tloTeksturaPattern = new ImagePattern(tloTekstura);
+        tlo.setFill(tloTeksturaPattern);
+        MushroomsApplication.pane.getChildren().add(tlo);
+        for(int y = 0; y < wysokośćPlanszy; y++)
+        {
+            for(int x = 0; x < szerokośćPlanszy; x++)
+            {
+                if(x == 0 || x == szerokośćPlanszy - 1 || y == 0 || y == wysokośćPlanszy - 1)
+                {
+                    mapa[y][x] = new Rectangle();
+                    mapa[y][x].setX(x * szerokoscPola + offsetX + 2);
+                    mapa[y][x].setY(y * wysokoscPola + offsetY + 2);
+                    mapa[y][x].setWidth(szerokoscPola);
+                    mapa[y][x].setHeight(wysokoscPola);
+                    sciezka = new Image("file:sciezka.png");
+                    sciezkaPattern = new ImagePattern(sciezka);
+                    mapa[y][x].setFill(sciezkaPattern);
+                    //mapa[y][x].setFill(Color.BLUE); //wyplenienie srodka
+                    //mapa[y][x].setStroke(Color.BLACK); //wypelnienie krawedzi
+                    //mapa[y][x].setStrokeWidth(2); //wypelnienie krawedzi
+                    MushroomsApplication.pane.getChildren().add(mapa[y][x]);
+
+                }
+            }
+        }
+
 
 
         for (int i = 0; i < wysokośćPlanszy; i++) {
@@ -51,6 +110,10 @@ public class Plansza {
         int licznikd = this.ilośćDobrych;
         int licznikz = this.ilośćZłych;
 
+        Image grzybcioTekstura;
+        ImagePattern grzybcioTeksturaPattern;
+
+
         //Random generator = new Random();
 
         do {
@@ -61,7 +124,16 @@ public class Plansza {
 
             if (this.pola[y][x] == polaWolne) // pole używane w grze
             {
-                this.pola[y][x] = dobreGrzyby; //stawiamy dobrego grzybka
+                this.pola[y][x] = dobreGrzyby;//stawiamy dobrego grzybka
+                this.tablicagrzybow[y][x] = new Rectangle();
+                this.tablicagrzybow[y][x].setX(x * szerokoscPola+5+offsetX);
+                this.tablicagrzybow[y][x].setY(y* wysokoscPola+5+offsetY);
+                this.tablicagrzybow[y][x].setWidth(25);
+                this.tablicagrzybow[y][x].setHeight(25);
+                grzybcioTekstura = new Image("file:dobryGrzyb.png");
+                grzybcioTeksturaPattern = new ImagePattern(grzybcioTekstura);
+                this.tablicagrzybow[y][x].setFill(grzybcioTeksturaPattern);
+                MushroomsApplication.pane.getChildren().add(this.tablicagrzybow[y][x]);
                 licznikd = licznikd - 1; //zmniejszamy ilość grzybków do postawienia
             }
         }
@@ -74,6 +146,15 @@ public class Plansza {
 
             if (this.pola[y][x] == polaWolne) {
                 this.pola[y][x] = złeGrzyby; //stawiamy złego grzybka
+                this.tablicagrzybow[y][x] = new Rectangle();
+                this.tablicagrzybow[y][x].setX(x * szerokoscPola+5+offsetX);
+                this.tablicagrzybow[y][x].setY(y* wysokoscPola+5+offsetY);
+                this.tablicagrzybow[y][x].setWidth(25);
+                this.tablicagrzybow[y][x].setHeight(25);
+                grzybcioTekstura = new Image("file:zlyGrzyb.png");
+                grzybcioTeksturaPattern = new ImagePattern(grzybcioTekstura);
+                this.tablicagrzybow[y][x].setFill(grzybcioTeksturaPattern);
+                MushroomsApplication.pane.getChildren().add(this.tablicagrzybow[y][x]);
                 licznikz = licznikz - 1;
             }
         }
