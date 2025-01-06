@@ -1,10 +1,10 @@
 package pl.cielebakbozecka.mushrooms.game;
 
 import javafx.scene.image.Image;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
-import pl.cielebakbozecka.mushrooms.MushroomsApplication;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -40,7 +40,11 @@ public class Plansza {
     public int offsetX = 130;
     public int offsetY = 20;
 
-    public Plansza(int wysokośćPlanszy, int szerokośćPlanszy) {
+    public Pane pane;
+
+    public Plansza(Pane pane, int wysokośćPlanszy, int szerokośćPlanszy) {
+        this.pane = pane;
+
         this.pola = new int[wysokośćPlanszy][szerokośćPlanszy];
         this.wysokośćPlanszy = wysokośćPlanszy;
         this.szerokośćPlanszy = szerokośćPlanszy;
@@ -64,7 +68,7 @@ public class Plansza {
         tloTekstura = new Image("file:tlo.png");
         tloTeksturaPattern = new ImagePattern(tloTekstura);
         tlo.setFill(tloTeksturaPattern);
-        MushroomsApplication.pane.getChildren().add(tlo);
+        pane.getChildren().add(tlo);
         for(int y = 0; y < wysokośćPlanszy; y++)
         {
             for(int x = 0; x < szerokośćPlanszy; x++)
@@ -82,7 +86,7 @@ public class Plansza {
                     //mapa[y][x].setFill(Color.BLUE); //wyplenienie srodka
                     //mapa[y][x].setStroke(Color.BLACK); //wypelnienie krawedzi
                     //mapa[y][x].setStrokeWidth(2); //wypelnienie krawedzi
-                    MushroomsApplication.pane.getChildren().add(mapa[y][x]);
+                    pane.getChildren().add(mapa[y][x]);
 
                 }
             }
@@ -133,7 +137,7 @@ public class Plansza {
                 grzybcioTekstura = new Image("file:dobryGrzyb.png");
                 grzybcioTeksturaPattern = new ImagePattern(grzybcioTekstura);
                 this.tablicagrzybow[y][x].setFill(grzybcioTeksturaPattern);
-                MushroomsApplication.pane.getChildren().add(this.tablicagrzybow[y][x]);
+                pane.getChildren().add(this.tablicagrzybow[y][x]);
                 licznikd = licznikd - 1; //zmniejszamy ilość grzybków do postawienia
             }
         }
@@ -154,7 +158,7 @@ public class Plansza {
                 grzybcioTekstura = new Image("file:zlyGrzyb.png");
                 grzybcioTeksturaPattern = new ImagePattern(grzybcioTekstura);
                 this.tablicagrzybow[y][x].setFill(grzybcioTeksturaPattern);
-                MushroomsApplication.pane.getChildren().add(this.tablicagrzybow[y][x]);
+                pane.getChildren().add(this.tablicagrzybow[y][x]);
                 licznikz = licznikz - 1;
             }
         }
