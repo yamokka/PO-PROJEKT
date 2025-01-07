@@ -40,9 +40,13 @@ public class ŁączenieZSerwerem {
             while(true){
                 if(Tura()!=0){
                 System.out.println("Moja kolej");
+                wyślijKomendęRuchu();
+                odbierzBazęPlanszy();
                 }
                 else{
-                    Thread.sleep(50000);
+                    //Thread.sleep(5000);
+                    System.out.println("Nie moja kolej");
+                    odbierzBazęPlanszy();
                 }
             }
         } catch (Exception e) {
@@ -51,9 +55,12 @@ public class ŁączenieZSerwerem {
     }
 
     public int Tura(){
-        String message = null;
+        String message;
+        Object tmp = null;
         try {
-            message = (String) in.readObject();
+            tmp = in.readObject();
+            System.out.println(tmp.getClass().getName());
+            message = (String) tmp;
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (ClassNotFoundException e) {

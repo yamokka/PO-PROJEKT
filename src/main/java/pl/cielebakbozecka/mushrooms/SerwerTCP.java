@@ -31,6 +31,8 @@ public class SerwerTCP {
 
     private List<HandlerKlienta> klienci;
 
+    public int czyjaTura;
+
 
     private void zainicjalizujPlansze(int[][]plansza) {
 
@@ -172,7 +174,7 @@ public class SerwerTCP {
         public HandlerKlienta(Socket socket, SerwerTCP serwer) {
             this.socket = socket;
             this.serwer = serwer;
-/*
+ /*
             try {
                 this.out = new ObjectOutputStream(socket.getOutputStream());
                 this.in = new ObjectInputStream(socket.getInputStream());
@@ -180,13 +182,15 @@ public class SerwerTCP {
                 throw new RuntimeException("Nie udało się zainicjalizować strumieni", e);
             }
 
- */
+  */
         }
 
         public void przekażCzyjaKolej(int tura){
             if(tura==1){
                 try{
-                    out.writeObject("Tura gracza1");
+                    String ops = "Tura gracza1";
+                    System.out.println("Write numero tres- czyja tura czyli string");
+                    out.writeObject(ops);
                     out.flush();
                     System.out.println("Tura Gracza numer 1");
                 } catch (IOException e) {
@@ -196,7 +200,9 @@ public class SerwerTCP {
             }
             else{
                 try{
-                    out.writeObject("Tura gracza2");
+                    System.out.println("Write numero quatro- czyja tura2 czyli string");
+                    String ops = "Tura gracza2";
+                    out.writeObject(ops);
                     out.flush();
                     System.out.println("Tura Gracza numer 2");
                 } catch (IOException e) {
@@ -208,6 +214,7 @@ public class SerwerTCP {
 
         public void przekażNumer() {
             try {
+                System.out.println("Write numero uno- numer id");
                 out.writeObject(this.numerGracza);
                 out.flush();
 
@@ -220,10 +227,14 @@ public class SerwerTCP {
         }
 
         public void odbierzKomendę(){
+            Object tmp;
             KomendaRuchu komenda = null;
             try {
                 System.out.println("Oczekiwanie na dane...");
-                komenda = (KomendaRuchu) in.readObject();
+                tmp =  in.readObject();
+                System.out.println(tmp.getClass().getName());
+                komenda = (KomendaRuchu) tmp;
+
                 System.out.println("Odczytałem komendę ruchu");
             }catch (IOException e) {
                 System.err.println("Błąd odczytu: " + e.getMessage());
@@ -237,11 +248,11 @@ public class SerwerTCP {
             } else {
                 System.err.println("Połączenie z serwerem zostało zerwane.");
             }
-            if(komenda.numerGracza==0){
-                serwer.plansza[komenda.wiersz][komenda.kolumna]=6;
+            if(komenda.numerGracza==1){
+                serwer.plansza[komenda.kolumna][komenda.wiersz]=6;
             }
             else{
-                serwer.plansza[komenda.wiersz][komenda.kolumna]=7;
+                serwer.plansza[komenda.kolumna][komenda.wiersz]=8;
             }
         }
 
@@ -249,7 +260,7 @@ public class SerwerTCP {
         public void run() {
             try (ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
                 out = new ObjectOutputStream(socket.getOutputStream());
-
+                this.in = in;
                 //out.writeObject("Testowa wiadomość");
                 //out.flush();
                 //System.out.println("Wysłałem testową wiadomość.");
@@ -261,14 +272,55 @@ public class SerwerTCP {
 
                 while (true) {
 
-                    tura=1;
-                    przekażCzyjaKolej(tura);
-                    odbierzKomendę();
-                    wyślijPlanszę(serwer.plansza);
-                    tura=2;
-                    przekażCzyjaKolej(tura);
-                    odbierzKomendę();
-                    wyślijPlanszę(serwer.plansza);
+                    serwer.czyjaTura=1;
+                    if(numerGracza==1){
+                        System.out.println(numerGracza+" 1");
+                        przekażCzyjaKolej(tura);
+                        System.out.println(numerGracza+" 2");
+                        odbierzKomendę();
+                        System.out.println(numerGracza+" 3");
+                        wyślijPlanszę(serwer.plansza);
+                    }
+                    else{
+                        System.out.println(numerGracza+" 1");
+                        przekażCzyjaKolej(tura);
+                        System.out.println(numerGracza+" 2");
+                        odbierzKomendę();
+                        System.out.println(numerGracza+" 3");
+                        wyślijPlanszę(serwer.plansza);
+                    }
+                    serwer.czyjaTura=2;
+                    if(numerGracza!=1 ){
+                        System.out.println(numerGracza+" 1");
+                        przekażCzyjaKolej(tura);
+                        System.out.println(numerGracza+" 2");
+                        odbierzKomendę();
+                        System.out.println(numerGracza+" 3");
+                        wyślijPlanszę(serwer.plansza);
+                    }
+                    else{
+                        System.out.println(numerGracza+" 1");
+                        przekażCzyjaKolej(tura);
+                        System.out.println(numerGracza+" 2");
+                        odbierzKomendę();
+                        System.out.println(numerGracza+" 3");
+                        wyślijPlanszę(serwer.plansza);
+                    }
+                    //System.out.println(numerGracza+" 1");
+                    //przekażCzyjaKolej(tura);
+                    //System.out.println(numerGracza+" 2");
+                    //odbierzKomendę();
+                    //System.out.println(numerGracza+" 3");
+                    //wyślijPlanszę(serwer.plansza);
+
+                    //tura=2;
+                    //System.out.println(numerGracza+" 4");
+                    //przekażCzyjaKolej(tura);
+                    //System.out.println(numerGracza+" 5");
+                    //odbierzKomendę();
+                    //System.out.println(numerGracza+" 6");
+                    //wyślijPlanszę(serwer.plansza);
+
 
                 }
 
@@ -296,6 +348,7 @@ public class SerwerTCP {
                     return;
                 }
 
+                System.out.println("Write numero dos- plansza");
                 out.writeObject(plansza);
                 out.flush();
                 System.out.println("Przekazałem graczowi" + this.numerGracza + " plansze");
