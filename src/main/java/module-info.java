@@ -5,6 +5,7 @@ module com.example.demo {
     requires org.controlsfx.controls;
     requires com.dlsc.formsfx;
     requires org.kordamp.bootstrapfx.core;
+    requires java.desktop;
 
     opens pl.cielebakbozecka.mushrooms to javafx.fxml;
     exports pl.cielebakbozecka.mushrooms;

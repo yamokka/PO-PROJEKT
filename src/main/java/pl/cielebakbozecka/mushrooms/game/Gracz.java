@@ -42,9 +42,9 @@ public class Gracz {
     public Gracz(Pane pane, ŁączenieZSerwerem lacze, int a, int b, Plansza plansza) {
         this.pane = pane;
 
-        this.in = lacze.in;
-        this.out = lacze.out;
-        this.idgracza = lacze.idGracza;
+        //this.in = lacze.in;
+        //this.out = lacze.out;
+        //this.idgracza = lacze.idGracza;
 
 
         this.a = a;

@@ -50,6 +50,7 @@ public class Plansza {
         this.szerokośćPlanszy = szerokośćPlanszy;
         this.mapa = new Rectangle[wysokośćPlanszy][szerokośćPlanszy];
         this.tablicagrzybow = new Rectangle[wysokośćPlanszy][szerokośćPlanszy];
+
         for(int g=0; g<wysokośćPlanszy; g++){
             for(int r=0; r<szerokośćPlanszy; r++){
                 this.tablicagrzybow[g][r]=null;
@@ -69,6 +70,7 @@ public class Plansza {
         tloTeksturaPattern = new ImagePattern(tloTekstura);
         tlo.setFill(tloTeksturaPattern);
         pane.getChildren().add(tlo);
+
         for(int y = 0; y < wysokośćPlanszy; y++)
         {
             for(int x = 0; x < szerokośćPlanszy; x++)

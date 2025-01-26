@@ -9,18 +9,19 @@ public class ŁączenieZSerwerem {
 
     private static final String ADRES_SERWERA = "localhost";
     private static final int PORT_SERWERA = 12345;
-
-
-
     public Socket socket;
+    /*
+
     public ObjectOutputStream out;
-    public ObjectInputStream in;
-
+    //public ObjectInputStream in;
     public int idGracza;
-    public int[][] plansza;
-    public int wiersz;
-    public int kolumna;
+    private boolean mojaKolej = false;
+    //public int[][] plansza;
+    //public int wiersz;
+    //public int kolumna;
 
+
+     */
 
 
     public ŁączenieZSerwerem(){
@@ -28,8 +29,8 @@ public class ŁączenieZSerwerem {
                 Socket socket = new Socket(ADRES_SERWERA, PORT_SERWERA);
                 ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
                 ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
-            this.socket = socket;
-
+                this.socket = socket;
+/*
             this.out = out;
             this.in = in;
             //czytomasens();
@@ -49,11 +50,13 @@ public class ŁączenieZSerwerem {
                     odbierzBazęPlanszy();
                 }
             }
+
+ */
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
-
+/*
     public int Tura(){
         String message;
         Object tmp = null;
@@ -117,8 +120,7 @@ public class ŁączenieZSerwerem {
             System.err.println("Nieprawidłowy typ danych podczas odczytu ID gracza.");
             e.printStackTrace();
         }
-        //System.out.println("Dojde do konca!");
-        //return 1;
+
         if (socket.isConnected()) {
             System.out.println("Połączenie z serwerem aktywne.");
         } else {
@@ -153,5 +155,7 @@ public class ŁączenieZSerwerem {
 
         return plansza;
     }
+
+ */
 }
 

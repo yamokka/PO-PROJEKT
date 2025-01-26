@@ -8,90 +8,94 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 
 public class SerwerTCP {
 
-    private static final String WIADOMOŚĆ = "Jesteś graczem numer: ";
     public static final int PORT = 12345;
-    //private Plansza plansza;
 
-    public int[][] plansza;
-
-    final static int polaNiedostępne = 0;
-    final static int polaWolne = 1;
-    static int dobreGrzyby = 2;
-    static int złeGrzyby = 3;
-    static int Pionek = 4;
-
-    int ilośćDobrych = 3;
-    int ilośćZłych = 2;
+    public PlanszaBezInterfejsu plansza;
 
     private List<HandlerKlienta> klienci;
+    private List<NaszGracz> gracze;
+    private NaszGracz obecnyGracz;
+
 
     public int czyjaTura;
 
+    private void petelkaSerwera(int wiersze, int kolumny){
 
-    private void zainicjalizujPlansze(int[][]plansza) {
+        plansza = new PlanszaBezInterfejsu(6, 8);
+        klienci = new ArrayList<>();
+        gracze = new ArrayList<>();
 
-        for (int i = 0; i < plansza.length; i++) {
-            for (int j = 0; j < plansza[i].length; j++) {
-                plansza[i][j] = polaNiedostępne; //uzupełnienie każdego pola wartością 0
-            }
-        }
+        try (ServerSocket serwerSocket = new ServerSocket(PORT)) {
+            System.out.println("Serwer uruchomiony w porcie " + PORT);
 
-        for (int i = 0; i < plansza.length; i++) {
-            for (int j = 0; j < plansza[i].length; j++) {
-                if (i == 0 || i == plansza.length - 1 || j == 0 || j == plansza[i].length - 1) {
-                    plansza[i][j] = polaWolne; //pola na których można stawać przyjmują wartość 1
+            while (true) {
+                Socket socket = serwerSocket.accept();
+
+                NaszGracz gracz = new NaszGracz(klienci.size() + 1);
+                gracze.add(gracz);
+
+                HandlerKlienta handlerKlienta = new HandlerKlienta(socket, this, gracz);
+                klienci.add(handlerKlienta);
+
+                /*
+                if (klienci.isEmpty()) {
+                    handlerKlienta.numerGracza = 1;
+                } else {
+                    handlerKlienta.numerGracza = klienci.size() +1;
+                }
+
+                 */
+
+                new Thread(handlerKlienta).start();
+
+                if( klienci.size() == 2){
+                    obecnyGracz = gracze.getLast();
+
+                    przedstawStatusGry();
+                    wyslijWiadomoscTury();
                 }
             }
+        } catch (IOException e) {
+            System.out.println("Coś poszło nie tak... " + e.getMessage());
         }
-
-        /*
-        for (int i = 0; i < plansza.length; i++) {
-            for (int j = 0; j < plansza[i].length; j++) {
-                plansza[i][j] = 0;
-            }
-        }
-
-         */
     }
 
-    private void wypełnijPlanszę(int[][] plansza){
-        int licznikd = this.ilośćDobrych;
-        int licznikz = this.ilośćZłych;
+    private void przedstawStatusGry(){
+       System.out.println("Przedstawiam stan gry...");
 
-        do {
-            int y = ThreadLocalRandom.current().nextInt(0, plansza.length);
-            int x = ThreadLocalRandom.current().nextInt(0, plansza[0].length);
+       for (HandlerKlienta klient : klienci){
+           klient.wyslijWiadomosc(new Wiadomosci(TypWiadomosci.PLANSZA, plansza.skopiujPlanszę()));
+           klient.wyslijWiadomosc(new Wiadomosci(TypWiadomosci.PUNKTY, gracze.stream().map(NaszGracz::getPunkty).mapToInt(Integer::intValue).toArray()));
+       }
+    }
 
+    private void wyslijWiadomoscTury(){
+        System.out.println("Wysyłanie wiadomości o turze - obecny gracz to " + obecnyGracz.getNumer());
 
-            if (plansza[y][x] == polaWolne) // pole używane w grze
-            {
-                plansza[y][x] = dobreGrzyby;//stawiamy dobrego grzybka
-                licznikd = licznikd - 1; //zmniejszamy ilość grzybków do postawienia
-            }
+        obecnyGracz = gracze.get((gracze.indexOf(obecnyGracz) + 1) % gracze.size());
+
+        for (HandlerKlienta klient : klienci) {
+            klient.wyslijWiadomosc(new Wiadomosci(TypWiadomosci.TURA, obecnyGracz.getNumer()));
         }
-        while (licznikd > 0);
-
-        do {
-            int y = ThreadLocalRandom.current().nextInt(0, plansza.length);
-            int x = ThreadLocalRandom.current().nextInt(0, plansza[0].length);
-
-
-            if (plansza[y][x] == polaWolne) // pole używane w grze
-            {
-                plansza[y][x] = złeGrzyby;//stawiamy złego grzybka
-                licznikz = licznikz - 1; //zmniejszamy ilość grzybków do postawienia
-            }
-        }
-        while (licznikz > 0);
     }
 
 
+    private void wyslijwiadomoscKonca(NaszGracz zwyciezca){
+        System.out.println("Przekazuję informację o zakończeniu gry...");
+
+        for (HandlerKlienta klient : klienci) {
+            klient.wyslijWiadomosc(new Wiadomosci(TypWiadomosci.KONIEC, zwyciezca.getNumer()));
+        }
+    }
+
+/*
     public SerwerTCP(int wiersze, int kolumny) {
         plansza = new int[wiersze][kolumny];
         //plansza.pola = new int[wiersze][kolumny];
@@ -99,6 +103,8 @@ public class SerwerTCP {
         zainicjalizujPlansze(plansza);
         wypełnijPlanszę(plansza);
     }
+
+
 
     public void start() {
         try (ServerSocket serwerSocket = new ServerSocket(PORT)) {
@@ -127,18 +133,36 @@ public class SerwerTCP {
         }
     }
 
-    public synchronized void wykonajRuch(KomendaRuchu komendaRuchu) {
-        plansza[komendaRuchu.wiersz][komendaRuchu.kolumna] = komendaRuchu.numerGracza;
-        wyślijTablice();
-    }
+ */
 
+
+    public synchronized void wykonajRuch(NaszGracz gracz, int kroki, int kierunek) {
+       System.out.println("Zajmuję się przetwarzaniem ruchu gracza "+ gracz.getNumer() +"...");
+
+        Poruszanie.wykonajRuch(plansza, gracz, kroki, kierunek);
+        przedstawStatusGry();
+
+        if (plansza.czyPusta()){
+            gracze.sort(Comparator.comparingInt(NaszGracz::getPunkty).reversed());
+            wyslijwiadomoscKonca(gracze.getFirst());
+        }
+        else{
+            wyslijWiadomoscTury();
+        }
+
+
+        //plansza[komendaRuchu.wiersz][komendaRuchu.kolumna] = komendaRuchu.numerGracza;
+        //wyślijTablice();
+    }
 
     public static void main(String[] args) {
 
+        new SerwerTCP().petelkaSerwera(6, 8);
+
+        /*
         SerwerTCP serwer = new SerwerTCP(6, 8);
         serwer.start();
 
-       /*
         Plansza plansza= new Plansza(6, 8);
 
         plansza.wypełnijGrzybkami();
@@ -163,17 +187,22 @@ public class SerwerTCP {
          */
     }
 
-    private static class HandlerKlienta implements Runnable {
-        private Socket socket;
-        private SerwerTCP serwer;
-        private ObjectOutputStream out;
-        public ObjectInputStream in;
-        public int numerGracza;
-        public int tura;
 
-        public HandlerKlienta(Socket socket, SerwerTCP serwer) {
+
+    private class HandlerKlienta implements Runnable {
+
+        private final Socket socket;
+        private final NaszGracz gracz;
+        private ObjectOutputStream out;
+        //private SerwerTCP serwer;
+        //public ObjectInputStream in;
+        //public int numerGracza;
+        //public int tura;
+
+        public HandlerKlienta(Socket socket, SerwerTCP serwer, NaszGracz gracz) {
             this.socket = socket;
-            this.serwer = serwer;
+            //this.serwer = serwer;
+            this.gracz = gracz;
  /*
             try {
                 this.out = new ObjectOutputStream(socket.getOutputStream());
@@ -183,6 +212,15 @@ public class SerwerTCP {
             }
 
   */
+        }
+
+        public void wyslijWiadomosc(Wiadomosci wiadomosc){
+            try{
+                out.writeObject(wiadomosc);
+                out.flush();
+            } catch (IOException e){
+                System.out.println("Coś poszło nie tak :c Oto co takiego: " + e.getMessage());
+            }
         }
 
         public void przekażCzyjaKolej(int tura){
@@ -211,6 +249,8 @@ public class SerwerTCP {
             }
 
         }
+
+        /*
 
         public void przekażNumer() {
             try {
@@ -256,26 +296,34 @@ public class SerwerTCP {
             }
         }
 
+         */
+
         @Override
         public void run() {
             try (ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
                 out = new ObjectOutputStream(socket.getOutputStream());
-                this.in = in;
+                wyslijWiadomosc(new Wiadomosci(TypWiadomosci.POWITANIE, gracz.getNumer()));
+
+                /*
+
+                //this.in = in;
                 //out.writeObject("Testowa wiadomość");
                 //out.flush();
                 //System.out.println("Wysłałem testową wiadomość.");
 
 
-                przekażNumer();
-                wyślijPlanszę(serwer.plansza);
+                //przekażNumer();
+               // wyślijPlanszę(serwer.plansza);
+
+                 */
 
 
                 while (true) {
-
+/*
                     serwer.czyjaTura=1;
                     if(numerGracza==1){
                         System.out.println(numerGracza+" 1");
-                        przekażCzyjaKolej(tura);
+                        przekażCzyjaKolej(serwer.czyjaTura);
                         System.out.println(numerGracza+" 2");
                         odbierzKomendę();
                         System.out.println(numerGracza+" 3");
@@ -283,7 +331,7 @@ public class SerwerTCP {
                     }
                     else{
                         System.out.println(numerGracza+" 1");
-                        przekażCzyjaKolej(tura);
+                        przekażCzyjaKolej(serwer.czyjaTura);
                         System.out.println(numerGracza+" 2");
                         odbierzKomendę();
                         System.out.println(numerGracza+" 3");
@@ -292,7 +340,7 @@ public class SerwerTCP {
                     serwer.czyjaTura=2;
                     if(numerGracza!=1 ){
                         System.out.println(numerGracza+" 1");
-                        przekażCzyjaKolej(tura);
+                        przekażCzyjaKolej(serwer.czyjaTura);
                         System.out.println(numerGracza+" 2");
                         odbierzKomendę();
                         System.out.println(numerGracza+" 3");
@@ -300,7 +348,7 @@ public class SerwerTCP {
                     }
                     else{
                         System.out.println(numerGracza+" 1");
-                        przekażCzyjaKolej(tura);
+                        przekażCzyjaKolej(serwer.czyjaTura);
                         System.out.println(numerGracza+" 2");
                         odbierzKomendę();
                         System.out.println(numerGracza+" 3");
@@ -321,14 +369,20 @@ public class SerwerTCP {
                     //System.out.println(numerGracza+" 6");
                     //wyślijPlanszę(serwer.plansza);
 
+ */
+                    Wiadomosci wiadomosc = (Wiadomosci) in.readObject();
 
+                    if(wiadomosc.getTyp() == TypWiadomosci.RUCH){
+                        int kroki = (int) wiadomosc.getDane();
+                        int kierunek = 1;
+                        wykonajRuch(gracz, kroki, kierunek);
+                    }
                 }
 
             } catch (EOFException e) {
-                // nothing to do here
-           // } catch (ClassNotFoundException e) {
-                //throw new RuntimeException(e);
             } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
             /*
@@ -340,7 +394,7 @@ public class SerwerTCP {
 
              */
         }
-
+        /*
         public void wyślijPlanszę(int[][] plansza) {
             try {
                 if (!socket.isConnected()) {
@@ -360,5 +414,7 @@ public class SerwerTCP {
                 e.printStackTrace();
             }
         }
+        */
     }
+
 }

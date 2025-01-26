@@ -4,34 +4,72 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class Poruszanie {
-    int szerokośćPlanszy;
-    int wysokośćPlanszy;
+
+    static int szerokośćPlanszy;
+    static int wysokośćPlanszy;
+    static int[][] plansza;
     int wiersz;
     int kolumna;
 
-    public Poruszanie(int szerokośćPlanszy, int wysokośćPlanszy, int wiersz, int kolumna){
-        this.wiersz = wiersz;
-        this.kolumna= kolumna;
+/*
+
+    public Poruszanie(int szerokośćPlanszy, int wysokośćPlanszy, int[][] plansza){
         this.wysokośćPlanszy=wysokośćPlanszy;
         this.szerokośćPlanszy=szerokośćPlanszy;
+        this.plansza = plansza;
+        szukajPozycjiGracza(plansza);
     }
 
-    void wykonajRuch(int a, int b){
-        Random rand = new Random();
-        int oczka = rand.nextInt(6) + 1;
-        System.out.println("Wylosowano "+oczka+" oczek. Wybierz stronę ruchu: 1-zgodnie z ruchem zegara/2-niezgodnie");
-        Scanner scan = new Scanner(System.in);
-        int kierunek = scan.nextInt();
-        if (kierunek == 0) {
-            wylosowanePoleZegar(oczka, a, b);
+ */
+
+
+    public static void wykonajRuch(PlanszaBezInterfejsu plansza, NaszGracz gracz, int kroki, int kierunek){
+
+        int[] pozycja = szukajPozycjiGracza(plansza, gracz.getNumer());
+
+        int a, b;
+
+        if (pozycja != null) {
+            a = pozycja[0];
+            b = pozycja[1];
+
+            plansza.getPola()[a][b] = plansza.polaWolne;
+
         } else {
-            wylosowanePoleNieZegar(oczka, a, b);
+            a = 0;
+            b = 0;
         }
+
+        if (kierunek == 1) {
+            wylosowanePoleZegar(kroki, a, b);
+        } else {
+            wylosowanePoleNieZegar(kroki, a, b);
+        }
+
+        //a = this.wiersz;
+        //b = this.kolumna;
+
+        if(plansza.getPola()[a][b] == plansza.dobreGrzyby){
+            gracz.punkty = gracz.punkty + 3;
+        }
+
+        if(plansza.getPola()[a][b] == plansza.złeGrzyby){
+            gracz.punkty = gracz.punkty - 2;
+        }
+
+        if(gracz.getNumer() == 1){
+            plansza.getPola()[a][b] = plansza.pionek1;
+        }
+
+        if(gracz.getNumer() == 2){
+            plansza.getPola()[a][b] = plansza.pionek2;
+        }
+
     }
 
-    public void wylosowanePoleZegar(int oczka, int a, int b) {
-        this.wiersz = a;
-        this.kolumna = b;
+    public static void wylosowanePoleZegar(int oczka, int a, int b) {
+        //this.wiersz = a;
+        //this.kolumna = b;
 
         if (a == 0 && b < szerokośćPlanszy) { //pierwsza sciana
             if (b + oczka < szerokośćPlanszy) { //czy nie wyjdzie z pierwszej sciany
@@ -132,14 +170,12 @@ public class Poruszanie {
             }
         }
 
-        this.wiersz = a;
-        this.kolumna = b;
     }
 
-    public void wylosowanePoleNieZegar(int oczka, int a, int b){
+    public static void wylosowanePoleNieZegar(int oczka, int a, int b){
 
-        this.wiersz = a;
-        this.kolumna = b;
+        //this.wiersz = a;
+        //this.kolumna = b;
 
         if (b == 0 && a < wysokośćPlanszy) { //czwarta sciana
             if (a + oczka < wysokośćPlanszy) { //czy nie wyjdzie z czwartej sciany
@@ -239,9 +275,31 @@ public class Poruszanie {
             }
         }
 
-        this.wiersz = a;
-        this.kolumna = b;
+}
+
+    private static int[] szukajPozycjiGracza(PlanszaBezInterfejsu plansza, int numerGracza){
+
+        int symbolGracza;
+
+        if(numerGracza==1){
+            symbolGracza=6;
+        }
+        else{
+            symbolGracza=9;
+        }
+
+        //char charGracza = (char) ('A' + numerGracza -1);
+
+        for(int i = 0; i<plansza.getWysokość(); i++){
+            for(int j = 0; j <plansza.getSzerokość(); j++){
+                if(plansza.getPola()[i][j]==symbolGracza){
+                    return new int[]{i, j};
+                }
+            }
+        }
+        return null;
     }
+
 }
 
 
