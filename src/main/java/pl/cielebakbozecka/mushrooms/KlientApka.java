@@ -22,7 +22,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.ImagePattern;
 import javafx.stage.Stage;
-import pl.cielebakbozecka.mushrooms.game.Gracz;
+//import pl.cielebakbozecka.mushrooms.game.Gracz;
 import pl.cielebakbozecka.mushrooms.game.Plansza;
 import java.awt.*;
 import java.io.IOException;
@@ -146,15 +146,6 @@ public class KlientApka extends Application {
         stage.setTitle("Czarci krąg");
         stage.show();
 
-
-
-
-
-
-
-
-
-
     }
 
     private void pętelkaKlienta() {
@@ -198,6 +189,7 @@ public class KlientApka extends Application {
             }
         } catch (IOException | ClassNotFoundException e) {
             System.out.println("Coś poszło nie tak... " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -224,7 +216,7 @@ public class KlientApka extends Application {
                 } else if (plansza[i][j] == 2) {
                     overlayImage = new ImageView(new Image("file:dobryGrzyb.png"));
                 } else if (plansza[i][j] == 3) {
-                    overlayImage = new ImageView(new Image("file:złyGrzyb.png"));
+                    overlayImage = new ImageView(new Image("file:zlyGrzyb.png"));
                 }
 
                 if (overlayImage != null){

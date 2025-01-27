@@ -7,23 +7,17 @@ public class Poruszanie {
 
     static int szerokośćPlanszy;
     static int wysokośćPlanszy;
-    static int[][] plansza;
-    int wiersz;
-    int kolumna;
-
-/*
-
-    public Poruszanie(int szerokośćPlanszy, int wysokośćPlanszy, int[][] plansza){
-        this.wysokośćPlanszy=wysokośćPlanszy;
-        this.szerokośćPlanszy=szerokośćPlanszy;
-        this.plansza = plansza;
-        szukajPozycjiGracza(plansza);
-    }
-
- */
+    //PlanszaBezInterfejsu plansza;
+    //int wiersz;
+    //int kolumna;
 
 
     public static void wykonajRuch(PlanszaBezInterfejsu plansza, NaszGracz gracz, int kroki, int kierunek){
+
+        //this.plansza = plansza;
+        wysokośćPlanszy = plansza.wysokośćPlanszy;
+        szerokośćPlanszy = plansza.szerokośćPlanszy;
+
 
         int[] pozycja = szukajPozycjiGracza(plansza, gracz.getNumer());
 
@@ -40,12 +34,21 @@ public class Poruszanie {
             b = 0;
         }
 
+        //System.out.println(a);
+        //System.out.println(b);
+
         if (kierunek == 1) {
-            wylosowanePoleZegar(kroki, a, b);
+            int[] liczba = wylosowanePoleZegar(kroki, a, b);
+            a = liczba[0];
+            b = liczba[1];
         } else {
-            wylosowanePoleNieZegar(kroki, a, b);
+            int[] liczba =wylosowanePoleNieZegar(kroki, a, b);
+            a = liczba[0];
+            b = liczba[1];
         }
 
+        System.out.println("a po wylosowanym: " +a);
+        System.out.println("b po wylosowanym: "+b);
         //a = this.wiersz;
         //b = this.kolumna;
 
@@ -67,9 +70,13 @@ public class Poruszanie {
 
     }
 
-    public static void wylosowanePoleZegar(int oczka, int a, int b) {
+    public static int[] wylosowanePoleZegar(int oczka, int a, int b) {
         //this.wiersz = a;
         //this.kolumna = b;
+        //System.out.println(szerokośćPlanszy);
+        //System.out.println(wysokośćPlanszy);
+        //System.out.println(a);
+        //System.out.println(b);
 
         if (a == 0 && b < szerokośćPlanszy) { //pierwsza sciana
             if (b + oczka < szerokośćPlanszy) { //czy nie wyjdzie z pierwszej sciany
@@ -90,7 +97,7 @@ public class Poruszanie {
                         a = wysokośćPlanszy - 1;
                         b = b - oczka;
                     } else {
-                        System.out.println("wow");
+                        System.out.println("wow JAKIM CUDEM???");
                     }
                 }
 
@@ -115,7 +122,7 @@ public class Poruszanie {
                             b = 0;
                             a = a - oczka;
                         } else {
-                            System.out.println("wow");
+                            System.out.println("wow TUTAJ?");
                         }
                     }
                 }
@@ -139,7 +146,7 @@ public class Poruszanie {
                                 b = b + oczka;
                                 a = 0;
                             } else {
-                                System.out.println("wow");
+                                System.out.println("wow CO?");
                             }
                         }
                     }
@@ -162,17 +169,19 @@ public class Poruszanie {
                                 b = szerokośćPlanszy - 1;
                                 a = a + oczka;
                             } else {
-                                System.out.println("wow");
+                                System.out.println("wow EXCUSE ME?");
                             }
                         }
                     }
                 }
             }
         }
-
+        System.out.println("a w funkcji: "+a);
+        System.out.println("b w funkcji: "+b);
+        return new int[]{a, b};
     }
 
-    public static void wylosowanePoleNieZegar(int oczka, int a, int b){
+    public static int[] wylosowanePoleNieZegar(int oczka, int a, int b){
 
         //this.wiersz = a;
         //this.kolumna = b;
@@ -274,7 +283,9 @@ public class Poruszanie {
                 }
             }
         }
-
+        System.out.println("a w funkcji: "+a);
+        System.out.println("b w funkcji: "+b);
+        return new int[]{a, b};
 }
 
     private static int[] szukajPozycjiGracza(PlanszaBezInterfejsu plansza, int numerGracza){
@@ -288,7 +299,6 @@ public class Poruszanie {
             symbolGracza=9;
         }
 
-        //char charGracza = (char) ('A' + numerGracza -1);
 
         for(int i = 0; i<plansza.getWysokość(); i++){
             for(int j = 0; j <plansza.getSzerokość(); j++){

@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-
+import java.util.concurrent.TimeUnit;
 
 public class SerwerTCP {
 
@@ -19,17 +19,16 @@ public class SerwerTCP {
 
     public PlanszaBezInterfejsu plansza;
 
-    private List<HandlerKlienta> klienci;
+    private List<HandlerKlienta> klienci = new ArrayList<>();
     private List<NaszGracz> gracze;
     private NaszGracz obecnyGracz;
 
 
-    public int czyjaTura;
+    //public int czyjaTura;
 
-    private void petelkaSerwera(int wiersze, int kolumny){
+    private void petelkaSerwera(){
 
         plansza = new PlanszaBezInterfejsu(6, 8);
-        klienci = new ArrayList<>();
         gracze = new ArrayList<>();
 
         try (ServerSocket serwerSocket = new ServerSocket(PORT)) {
@@ -41,7 +40,7 @@ public class SerwerTCP {
                 NaszGracz gracz = new NaszGracz(klienci.size() + 1);
                 gracze.add(gracz);
 
-                HandlerKlienta handlerKlienta = new HandlerKlienta(socket, this, gracz);
+                HandlerKlienta handlerKlienta = new HandlerKlienta(socket, gracz);
                 klienci.add(handlerKlienta);
 
                 /*
@@ -58,12 +57,18 @@ public class SerwerTCP {
                 if( klienci.size() == 2){
                     obecnyGracz = gracze.getLast();
 
-                    przedstawStatusGry();
-                    wyslijWiadomoscTury();
+
+                    break;
                 }
             }
+            TimeUnit.SECONDS.sleep(1);
+            przedstawStatusGry();
+            wyslijWiadomoscTury();
+
         } catch (IOException e) {
             System.out.println("Coś poszło nie tak... " + e.getMessage());
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -78,7 +83,6 @@ public class SerwerTCP {
 
     private void wyslijWiadomoscTury(){
         System.out.println("Wysyłanie wiadomości o turze - obecny gracz to " + obecnyGracz.getNumer());
-
         obecnyGracz = gracze.get((gracze.indexOf(obecnyGracz) + 1) % gracze.size());
 
         for (HandlerKlienta klient : klienci) {
@@ -136,10 +140,11 @@ public class SerwerTCP {
  */
 
 
-    public synchronized void wykonajRuch(NaszGracz gracz, int kroki, int kierunek) {
+    private void wykonajRuch(NaszGracz gracz, int kroki, int kierunek) {
        System.out.println("Zajmuję się przetwarzaniem ruchu gracza "+ gracz.getNumer() +"...");
 
         Poruszanie.wykonajRuch(plansza, gracz, kroki, kierunek);
+        System.out.println(kroki);
         przedstawStatusGry();
 
         if (plansza.czyPusta()){
@@ -157,7 +162,7 @@ public class SerwerTCP {
 
     public static void main(String[] args) {
 
-        new SerwerTCP().petelkaSerwera(6, 8);
+        new SerwerTCP().petelkaSerwera();
 
         /*
         SerwerTCP serwer = new SerwerTCP(6, 8);
@@ -194,12 +199,8 @@ public class SerwerTCP {
         private final Socket socket;
         private final NaszGracz gracz;
         private ObjectOutputStream out;
-        //private SerwerTCP serwer;
-        //public ObjectInputStream in;
-        //public int numerGracza;
-        //public int tura;
 
-        public HandlerKlienta(Socket socket, SerwerTCP serwer, NaszGracz gracz) {
+        public HandlerKlienta(Socket socket, NaszGracz gracz) {
             this.socket = socket;
             //this.serwer = serwer;
             this.gracz = gracz;
@@ -222,7 +223,7 @@ public class SerwerTCP {
                 System.out.println("Coś poszło nie tak :c Oto co takiego: " + e.getMessage());
             }
         }
-
+/*
         public void przekażCzyjaKolej(int tura){
             if(tura==1){
                 try{
@@ -249,6 +250,8 @@ public class SerwerTCP {
             }
 
         }
+
+ */
 
         /*
 
@@ -320,6 +323,7 @@ public class SerwerTCP {
 
                 while (true) {
 /*
+
                     serwer.czyjaTura=1;
                     if(numerGracza==1){
                         System.out.println(numerGracza+" 1");
@@ -369,7 +373,7 @@ public class SerwerTCP {
                     //System.out.println(numerGracza+" 6");
                     //wyślijPlanszę(serwer.plansza);
 
- */
+                    */
                     Wiadomosci wiadomosc = (Wiadomosci) in.readObject();
 
                     if(wiadomosc.getTyp() == TypWiadomosci.RUCH){
@@ -379,10 +383,7 @@ public class SerwerTCP {
                     }
                 }
 
-            } catch (EOFException e) {
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } catch (ClassNotFoundException e) {
+            } catch (IOException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
             /*
@@ -394,27 +395,7 @@ public class SerwerTCP {
 
              */
         }
-        /*
-        public void wyślijPlanszę(int[][] plansza) {
-            try {
-                if (!socket.isConnected()) {
-                    System.out.println("Socket nie jest połączony.");
-                    return;
-                }
 
-                System.out.println("Write numero dos- plansza");
-                out.writeObject(plansza);
-                out.flush();
-                System.out.println("Przekazałem graczowi" + this.numerGracza + " plansze");
-
-                Thread.sleep(500);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        */
     }
 
 }
