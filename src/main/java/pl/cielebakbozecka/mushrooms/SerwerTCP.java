@@ -56,7 +56,7 @@ public class SerwerTCP {
 
                 if( klienci.size() == 2){
                     obecnyGracz = gracze.getLast();
-
+                    zapiszPoczątek();
 
                     break;
                 }
@@ -79,6 +79,13 @@ public class SerwerTCP {
            klient.wyslijWiadomosc(new Wiadomosci(TypWiadomosci.PLANSZA, plansza.skopiujPlanszę()));
            klient.wyslijWiadomosc(new Wiadomosci(TypWiadomosci.PUNKTY, gracze.stream().map(NaszGracz::getPunkty).mapToInt(Integer::intValue).toArray()));
        }
+
+        try {
+            zapiszdoPliku(plansza);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     private void wyslijWiadomoscTury(){
@@ -97,7 +104,93 @@ public class SerwerTCP {
         for (HandlerKlienta klient : klienci) {
             klient.wyslijWiadomosc(new Wiadomosci(TypWiadomosci.KONIEC, zwyciezca.getNumer()));
         }
+        try {
+            zapiszKoniec();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
+
+    public void zapiszPoczątek()throws IOException{
+        try (FileWriter filewriter = new FileWriter("pliczek.txt", true)) {
+            filewriter.write("\n");
+            filewriter.write("\nNOWA GRA\n");
+        }
+    }
+
+    public void zapiszdoPliku(PlanszaBezInterfejsu plansza) throws IOException {
+        try (FileWriter filewriter = new FileWriter("pliczek.txt", true)) {
+            filewriter.write("\n");
+            filewriter.write("Stan gry: \n");
+
+            for (int i = 0; i < plansza.wysokośćPlanszy; i++) {
+                for (int j = 0; j < plansza.szerokośćPlanszy; j++) {
+                    if (plansza.pola[i][j] == plansza.polaNiedostępne) {
+                        //filewriter.write(Integer.toString(this.pola[i][j]));
+                        filewriter.write("  ");
+                    }
+                    if (plansza.pola[i][j]== plansza.polaWolne) {
+                        filewriter.write("# ");
+                        //System.out.print("# ");
+                    }
+                    if (plansza.pola[i][j]== plansza.dobreGrzyby) {
+                        filewriter.write("d ");
+                        //System.out.print("d ");
+                    }
+                    if (plansza.pola[i][j]==plansza.złeGrzyby) {
+                        filewriter.write("z ");
+                        //System.out.print("z ");
+                    }
+
+                    if (plansza.pola[i][j]==plansza.pionek1) {
+                        filewriter.write("8 ");
+                        //System.out.print("z ");
+                    }
+
+                    if (plansza.pola[i][j]==plansza.pionek2) {
+                        filewriter.write("& ");
+                        //System.out.print("z ");
+                    }
+
+                    //filewriter.write(Integer.toString(this.pola[i][j]));
+                    //filewriter.write(" ");
+                }
+                filewriter.write("\n");
+            }
+
+            for (NaszGracz gracz : gracze){
+                filewriter.write("Punkty gracza");
+                filewriter.write(Integer.toString(gracz.getNumer()));
+                filewriter.write(":\n");
+                filewriter.write(Integer.toString(gracz.getPunkty()));
+                filewriter.write("\n");
+            }
+        }
+    }
+
+    public void zapiszKoniec() throws IOException {
+        try (FileWriter filewriter = new FileWriter("pliczek.txt", true)) {
+            filewriter.write("\n");
+            filewriter.write("Ostateczny stan gry: \n");
+            int zwyciezca=0;
+            int punktyZwyciezcy = 0;
+
+            for (NaszGracz gracz : gracze) {
+                filewriter.write("Punkty gracza");
+                filewriter.write(Integer.toString(gracz.getNumer()));
+                filewriter.write(":\n");
+                filewriter.write(Integer.toString(gracz.getPunkty()));
+                filewriter.write("\n");
+                if (punktyZwyciezcy <= gracz.getPunkty()) {
+                    punktyZwyciezcy = gracz.getPunkty();
+                    zwyciezca = gracz.getNumer();
+                }
+            }
+            filewriter.write("Wygral gracz");
+            filewriter.write(Integer.toString(zwyciezca));
+        }
+    }
+
 
 /*
     public SerwerTCP(int wiersze, int kolumny) {
@@ -300,6 +393,9 @@ public class SerwerTCP {
         }
 
          */
+
+
+
 
         @Override
         public void run() {
